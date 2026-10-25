@@ -124,6 +124,33 @@ def test_embed_passes_dimensions_only_when_explicit(mock_openai_client):
     )
 
 
+def test_embed_dimensions_from_env_not_sent_to_api(mock_openai_client, monkeypatch):
+    """EMBEDDING_DIMS sets the vector size but is not forwarded as `dimensions` (#4153)."""
+    monkeypatch.setenv("EMBEDDING_DIMS", "4096")
+    config = BaseEmbedderConfig()
+    embedder = OpenAIEmbedding(config)
+    assert embedder.config.embedding_dims == 4096
+    assert embedder._pass_dimensions_to_api is False
+
+    mock_response = Mock()
+    mock_response.data = [Mock(embedding=[0.1] * 4096)]
+    mock_openai_client.embeddings.create.return_value = mock_response
+
+    embedder.embed("env dims test")
+
+    mock_openai_client.embeddings.create.assert_called_once_with(
+        input=["env dims test"], model="text-embedding-3-small", encoding_format="float"
+    )
+
+
+def test_embed_explicit_dims_win_over_env(mock_openai_client, monkeypatch):
+    monkeypatch.setenv("EMBEDDING_DIMS", "4096")
+    config = BaseEmbedderConfig(embedding_dims=256)
+    embedder = OpenAIEmbedding(config)
+    assert embedder.config.embedding_dims == 256
+    assert embedder._pass_dimensions_to_api is True
+
+
 def test_embed_batch_returns_all_embeddings(mock_openai_client):
     config = BaseEmbedderConfig()
     embedder = OpenAIEmbedding(config)

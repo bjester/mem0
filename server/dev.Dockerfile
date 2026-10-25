@@ -11,7 +11,9 @@ COPY server/requirements.txt .
 RUN pip install -r requirements.txt
 
 # Install mem0 in editable mode using Poetry
-WORKDIR /app/packages
+# /opt/mem0 is outside /app because docker-compose bind-mounts server/ over /app,
+# which would shadow an editable install placed there.
+WORKDIR /opt/mem0
 COPY pyproject.toml .
 COPY poetry.lock .
 COPY README.md .

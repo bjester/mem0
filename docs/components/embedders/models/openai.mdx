@@ -61,7 +61,7 @@ Here are the parameters available for configuring OpenAI embedder:
 | Parameter | Description | Default Value |
 | --- | --- | --- |
 | `model` | The name of the embedding model to use | `text-embedding-3-small` |
-| `embedding_dims` | Dimensions of the embedding model | `1536` |
+| `embedding_dims` | Dimensions of the embedding model. Falls back to the `EMBEDDING_DIMS` environment variable, then `1536`. An env var value sizes the vector store but is not sent to the API as `dimensions` | `None` |
 | `api_key` | The OpenAI API key | `None` |
 </Tab>
 <Tab title="TypeScript">
