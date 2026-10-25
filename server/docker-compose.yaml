@@ -69,6 +69,20 @@ services:
       timeout: 5s
       retries: 3
 
+  mem0-mcp:
+    build: ./mcp
+    ports:
+      - "8890:8000"
+    networks:
+      - mem0_network
+    depends_on:
+      mem0:
+        condition: service_started
+    environment:
+      - MEM0_API_URL=http://mem0:8000
+      - MEM0_API_KEY=${ADMIN_API_KEY}
+      - MEM0_DEFAULT_USER_ID=${MEM0_DEFAULT_USER_ID:-}
+
 volumes:
   postgres_db:
 
