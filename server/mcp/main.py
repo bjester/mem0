@@ -36,7 +36,9 @@ mcp = MCPServer(
 
 _client = httpx.Client(
     base_url=MEM0_API_URL,
-    headers={"Authorization": f"Bearer {MEM0_API_KEY}"} if MEM0_API_KEY else {},
+    # The mem0 API treats Authorization: Bearer strictly as a JWT. Plain API
+    # keys (ADMIN_API_KEY or dashboard-created user keys) only work via X-API-Key.
+    headers={"X-API-Key": MEM0_API_KEY} if MEM0_API_KEY else {},
     timeout=120.0,
 )
 

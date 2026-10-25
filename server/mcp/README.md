@@ -24,7 +24,7 @@ deprecated `mem0-mcp` server are intentionally not exposed.
 Environment variables (set in `server/.env`):
 
 - `MEM0_API_URL` — mem0 API base URL inside the compose network (default `http://mem0:8000`).
-- `MEM0_API_KEY` — bearer token the mem0 API accepts. Defaults to `ADMIN_API_KEY` in docker-compose; a dashboard-created user API key also works.
+- `MEM0_API_KEY` — API key the mem0 API accepts, sent as `X-API-Key`. Defaults to `ADMIN_API_KEY` in docker-compose; a dashboard-created user API key also works.
 - `MEM0_DEFAULT_USER_ID` — optional scope used when a tool call omits `user_id`.
 - `MCP_ALLOWED_HOSTS` — comma-separated Host header values the endpoint accepts (DNS-rebinding protection). Port wildcards work (`host:*`). Unset = accept any host.
 
