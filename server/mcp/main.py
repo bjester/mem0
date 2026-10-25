@@ -14,10 +14,16 @@ from typing import Any, Optional
 
 import httpx
 from mcp.server.mcpserver import MCPServer
+from mcp.server.transport_security import TransportSecuritySettings
 
 MEM0_API_URL = os.environ.get("MEM0_API_URL", "http://mem0:8000").rstrip("/")
 MEM0_API_KEY = os.environ.get("MEM0_API_KEY", "")
 MEM0_DEFAULT_USER_ID = os.environ.get("MEM0_DEFAULT_USER_ID") or None
+# Comma-separated Host header values the MCP endpoint accepts, e.g.
+# "networkapp:8890" or "networkapp:*". Port wildcards
+# are supported. With the variable unset, DNS-rebinding protection is off
+# entirely; when set, only listed hosts are accepted.
+MCP_ALLOWED_HOSTS = [h.strip() for h in os.environ.get("MCP_ALLOWED_HOSTS", "").split(",") if h.strip()]
 
 mcp = MCPServer(
     name="mem0",
@@ -110,7 +116,18 @@ def delete_memory(memory_id: str) -> str:
     return _call("DELETE", f"/memories/{memory_id}")
 
 
-app = mcp.streamable_http_app()
+_transport_security = TransportSecuritySettings(enable_dns_rebinding_protection=False)
+if MCP_ALLOWED_HOSTS:
+    _transport_security = TransportSecuritySettings(
+        allowed_hosts=MCP_ALLOWED_HOSTS,
+        # Same-origin clients (curl, native MCP clients) send no Origin header,
+        # which the middleware accepts. Listed hosts cover browser-based clients.
+        allowed_origins=[f"http://{h}" for h in MCP_ALLOWED_HOSTS],
+    )
+else:
+    print("MCP_ALLOWED_HOSTS is unset - accepting requests with any Host header", flush=True)
+
+app = mcp.streamable_http_app(transport_security=_transport_security)
 
 if __name__ == "__main__":
     import uvicorn

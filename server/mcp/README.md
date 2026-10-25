@@ -26,6 +26,10 @@ Environment variables (set in `server/.env`):
 - `MEM0_API_URL` — mem0 API base URL inside the compose network (default `http://mem0:8000`).
 - `MEM0_API_KEY` — bearer token the mem0 API accepts. Defaults to `ADMIN_API_KEY` in docker-compose; a dashboard-created user API key also works.
 - `MEM0_DEFAULT_USER_ID` — optional scope used when a tool call omits `user_id`.
+- `MCP_ALLOWED_HOSTS` — comma-separated Host header values the endpoint accepts (DNS-rebinding protection). Port wildcards work (`host:*`). Unset = accept any host.
+
+When `MCP_ALLOWED_HOSTS` is unset the server logs a warning and accepts any
+Host header. Set it on a shared or untrusted network.
 
 ## Client setup
 
@@ -36,10 +40,10 @@ The service listens on host port 8890 at path `/mcp`:
   "mcpServers": {
     "mem0": {
       "type": "http",
-      "url": "http://nas.local.quavalent.io:8890/mcp"
+      "url": "http://networkapp:8890/mcp"
     }
   }
 }
 ```
 
-For Claude Code: `claude mcp add --transport http mem0 http://nas.local.quavalent.io:8890/mcp`
+For Claude Code: `claude mcp add --transport http mem0 http://networkapp:8890/mcp`
